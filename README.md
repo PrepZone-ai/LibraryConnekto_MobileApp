@@ -1,32 +1,55 @@
 # Library Connekto – Mobile App (React Native + Expo)
 
-Library Connekto is a React Native app built with Expo for managing library operations. It provides student and admin experiences including seat booking, messaging, attendance, analytics, and profile management.
+Library Connekto is a React Native + Expo application for modern library operations. It offers distinct Student and Admin experiences covering seat bookings, attendance, messaging, analytics, and subscription management.
 
-## Tech Stack
+## Overview
 
-- React Native 0.76, React 18
-- Expo 53 (managed/bare Android project present)
-- React Navigation (stack, bottom-tabs)
-- React Native Paper (UI)
-- AsyncStorage, Background tasks, Notifications
-- TypeScript
+- Platforms: Android (native module enabled), optional Web preview
+- Navigation: Stack + Bottom Tabs
+- UI: React Native Paper (MD3 theme)
+- State/Context: Auth + Student contexts
+- API: Typed fetch wrapper with bearer auth and error handling
+- Background: Task registration and notification checks on app boot
 
-## Project Structure (high level)
+## Architecture
 
-- `App.tsx` – App root, navigation stacks, providers
-- `components/` – Feature screens for Admin and Student
-- `contexts/` – Auth and Student contexts
-- `services/` – API and utility services (auth, notifications, etc.)
-- `config/` – Env loading, Webpack/Jest config, API base URL
-- `android/` – Native Android project
+- `App.tsx`
+  - Registers providers (`AuthProvider`, `StudentProvider`)
+  - Defines `RootStack`, `AdminStack`, `AdminTab`, `StudentTab`
+  - `ProtectedRoute` example for gated content
+  - Central theme and error boundary
+- `components/`
+  - `Admin/…`: Dashboard, Seat Management, Student Management, Messaging, Profile
+  - `Student/…`: Home, Booking, Messages, Dashboard, Profile
+  - `common/…`: Tab icons, headers, FABs, loading
+- `contexts/`
+  - `AuthContext.tsx`, `StudentContext.tsx`
+- `services/`
+  - `backgroundTaskService.ts`, `notificationService.ts`, `authService.ts`, etc.
+- `config/`
+  - `api.ts`: `apiClient`, `adminAPI`, `API_BASE_URL` from env
+  - `env.js`: dotenv loading for `REACT_APP_*`
+- `android/`
+  - Native Android project for local builds and releases
+
+## Features
+
+- Student
+  - Onboarding and role selection, login, profile, messages
+  - Find libraries, seat booking flow, dashboard stats
+- Admin
+  - Dashboard with KPIs and analytics
+  - Seat management, student CRUD, bulk upload
+  - Messaging (1:1 and broadcast), subscription plans
 
 ## Getting Started
 
-### Prerequisites
+### Requirements
 
-- Node.js 18+ and Yarn
+- Node.js 18+
+- Yarn
 - Expo CLI (`npm i -g expo`)
-- Android Studio + SDKs for Android build/run
+- Android Studio + SDKs
 
 ### Install
 
@@ -34,26 +57,31 @@ Library Connekto is a React Native app built with Expo for managing library oper
 yarn install
 ```
 
-### Environment Variables
+### Environment
 
-Create a `.env` file at the project root with at least:
+Create `.env` in project root:
 
 ```bash
 REACT_APP_API_BASE_URL=https://your-backend-host/api/v1
 ```
 
-`config/api.ts` reads `REACT_APP_API_BASE_URL` (defaults to `http://localhost:8000/api/v1`).
+Notes:
+
+- `config/env.js` loads `.env` files and exposes `REACT_APP_*` variables.
+- `config/api.ts` defaults to `http://localhost:8000/api/v1` when unset.
 
 ### Run (Expo)
 
 ```bash
 yarn start          # start Metro bundler
-yarn android        # build and run on Android
-yarn ios            # (if using macOS)
+yarn android        # run on Android device/emulator
+yarn ios            # run on iOS (macOS only)
 yarn web            # optional web preview
 ```
 
-## Build Android APK (debug)
+## Build
+
+### Android Debug APK
 
 ```bash
 cd android
@@ -62,25 +90,66 @@ cd android
 # Output: android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-For release builds, configure signing in `android/app/build.gradle` and generate a release keystore. Expo EAS Build can also be used if preferred.
+### Android Release (high level)
 
-## Scripts (package.json)
+1) Generate keystore and configure signing in `android/app/build.gradle`
+2) Set `release` signing config and `minifyEnabled` as needed
+3) Build:
+
+```bash
+cd android
+./gradlew assembleRelease
+```
+
+### Expo EAS (optional)
+
+If using EAS:
+
+```bash
+npx expo install expo-build-properties
+eas build -p android
+```
+
+## Scripts
 
 - `start`: `expo start`
 - `android`: `expo run:android`
 - `ios`: `expo run:ios`
 - `web`: `expo start --web`
 
-## API Client
+## API Usage
 
-`config/api.ts` exposes an `apiClient` wrapper using fetch with auth header from AsyncStorage, error handling, and helpers like `adminAPI`.
+`config/api.ts` provides:
+
+- `apiClient.get/post/put/patch/delete`
+- `getAuthToken/setAuthToken/removeAuthToken`
+- `adminAPI` helpers (profile, analytics, messages, students)
+
+Ensure the backend implements `/api/v1/health`, `/admin/*`, `/messaging/*` endpoints.
+
+## Testing (Jest setup present)
+
+- Jest config under `config/jest/*`
+- Example command (if tests are added under `src/`):
+
+```bash
+yarn jest
+```
 
 ## Troubleshooting
 
-- Clear Metro cache: `expo start -c`
-- Android build tools: ensure SDKs installed and `ANDROID_HOME` set
-- If API calls fail, verify `REACT_APP_API_BASE_URL`
+- Metro cache: `expo start -c`
+- Android SDK path: ensure `ANDROID_HOME` is set
+- Hermes/Gradle: run `cd android && ./gradlew clean`
+- API failures: verify `REACT_APP_API_BASE_URL`
+
+## Contributing
+
+1. Create a feature branch
+2. Follow TypeScript and formatting conventions
+3. Use descriptive commit messages
+4. Open a PR for review
 
 ## License
 
-Licensed under the 0BSD license as per `package.json`.
+0BSD (see `package.json`)
