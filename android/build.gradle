@@ -1,0 +1,30 @@
+buildscript {
+    // JVM options like encoding and heap size should be set in gradle.properties, not here.
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.encoding = "UTF-8" // Correct place for encoding
+            // Remove -Xmx2048m from here (it's a JVM arg, not compiler arg)
+        }
+    }
+
+    ext {
+        buildToolsVersion = '34.0.0'
+        minSdkVersion = 24
+        compileSdkVersion = 34
+        targetSdkVersion = 34
+        kotlinVersion = '1.7.20'
+        ndkVersion = "25.1.8937393"
+    }
+
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://www.jitpack.io' }
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:8.0.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+        classpath 'com.facebook.react:react-native-gradle-plugin'
+    }
+}

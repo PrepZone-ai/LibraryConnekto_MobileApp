@@ -1,0 +1,14 @@
+
+rootProject.name = 'LibraryConneckto'
+
+// The following line was causing an error as it was trying to apply an iOS-specific Ruby script in Android
+// apply from: new File(["node", "--print", "require.resolve('react-native/package.json')"].execute(null, rootDir).text.trim(), "../scripts/react_native_pods.rb")
+
+// The original line was looking for settings.gradle but the file is actually settings.gradle.kts
+// We'll use the settings plugin directly instead
+
+
+include ':app'
+includeBuild('../node_modules/@react-native/gradle-plugin')
+
+
